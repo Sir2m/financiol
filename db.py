@@ -21,12 +21,37 @@ class DB_connection:
     
     def create(self):
         # for creating the tables if there is no tables already (new user)
-        ...
+        self.__db.execute("""CREATE TABLE Wallet (
+            Currency TEXT NOT NULL PRIMARY KEY UNIQUE,
+            Amount INTEGER NOT NULL
+            );""")
+        
+        self.__db.execute("""CREATE TABLE Flow (
+            FlowID INTEGER PRIMARY KEY NOT NULL UNIQUE,
+            Time TIME NOT NULL,
+            Amount INTEGER NOT NULL,
+            Category TEXT,
+            Type TEXT NOT NULL,
+            Currency TEXT NOT NULL,
+            FOREIGN KEY (Currency) REFERENCES Wallet(Currency)
+            );""")
+
+        self.__db.execute("""CREATE TABLE History (
+            Time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            Operation TEXT NOT NULL,
+            Amount INTEGER NOT NULL,
+            Category TEXT,
+            Currency TEXT NOT NULL,
+            TransID INTEGER,
+            FOREIGN KEY (Currency) REFERENCES Wallet(Currency),
+            FOREIGN KEY (TransID) REFERENCES Flow(FlowID)
+            );""")
+
     
     def transaction(self):
         # for changing the data in the new worth table (is adding to the history table too violates solid principals? 🤔)
         ...
     
-    def sub_periodic(self):
-        # submits a periodic transaction, dealing with both expenses and income
+    def set_flow(self):
+        # submits a Flow transaction, dealing with both expenses and income
         ...
