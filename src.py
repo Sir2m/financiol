@@ -43,18 +43,18 @@ class Withdraw(Transaction):
         super().__init__(name, amount, category)
 
 
-class Periodic(Transaction):
+class Flow(Transaction):
     def __init__(self, name: str, amount: int | float, period: datetime, category: str | None = None):
         super().__init__(name, amount, category)
         self.data = period
 
 
-class Expenses(Periodic):
+class Expenses(Flow):
     def __init__(self, name, amount, period, category = None):
         super().__init__(name, amount, period, category)
 
 
-class Income(Periodic):
+class Income(Flow):
     def __init__(self, name, amount, period, category = None):
         super().__init__(name, amount, period, category)
 
