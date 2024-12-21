@@ -1,21 +1,18 @@
 class CalcOperations:
 
-     def DiscountCalc():  # calc total price after discount
-         price = float(input('Enter the price: '))
-         discount = float(input('Enter the discount percentage: '))
-         total = price - (price / 100) * discount
-         print(f'The total price after discount is {total:.2f}')
-
-     
-     def TaxCalc():   # calc total price after taxs
-         amount = float(input('Enter the amount: '))
-         tax = float(input('Enter the tax percentage: '))
-         total = amount + (amount / 100) * tax
-         print(f'The total price after tax is {total:.2f}')
-
-     
-     def NetGross():  # calc the total salary after taxs
-         salary = float(input('Enter your salary: '))
-         tax_percentage = float(input('Enter your tax percentage: '))
-         total = salary - (salary / 100) * tax_percentage
-         print(f'Your total salary after taxes is {total:.2f}')
+    @staticmethod
+    def partitioning(value: int | float, percent: int | float, slope: bool | None = True, full: bool | None = True) -> int | float:
+        if percent > 1:
+            percent /= 100
+        
+        change = value * percent
+        
+        if not full:
+            return change
+        
+        if slope:
+            final = value + change
+        else:
+            final = value - change
+        
+        return final
