@@ -16,7 +16,10 @@ class CalcOperations:
         return final 
 
     @staticmethod
-    def calc_interest(principal: int | float, rate: int | float, periods: int, installments: bool | None = True) -> int | float:
+    def calc_interest(principal: int | float, rate: int | float, periods: int = 1, installments: bool | None = False) -> int | float:
+        if periods < 1:
+            raise ValueError("There is nothing called NEGATIVE PERIODS!!")
+        
         rate /= 100
 
         if installments:
@@ -25,4 +28,3 @@ class CalcOperations:
             result = principal * ((1 + rate) ** periods)
 
         return result
-    
