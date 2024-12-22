@@ -1,6 +1,15 @@
 import sqlite3
 import requests
+from enum import Enum
 
+class DB_enums(Enum):
+    ADD = 1
+    SUB = 2
+    TIME = 10
+    CATEGORY = 11
+    AMOUNT = 12
+    CURRENCY = 13
+    
 
 class DB_connection:
     PATH = "db.db"
@@ -29,27 +38,28 @@ class DB_connection:
     def create(self):
         # for creating the tables if there is no tables already (new user)
         self.__db.execute("""CREATE TABLE wallet (
-            Currency TEXT NOT NULL PRIMARY KEY UNIQUE,
-            Amount INTEGER NOT NULL
+            currency TEXT NOT NULL PRIMARY KEY UNIQUE,
+            amount INTEGER NOT NULL
             );""")
         
         self.__db.execute("""CREATE TABLE flow (
-            FlowID INTEGER PRIMARY KEY NOT NULL UNIQUE,
-            Time TIME NOT NULL,
-            Amount INTEGER NOT NULL,
-            Category TEXT,
-            Type TEXT NOT NULL,
-            Currency TEXT NOT NULL,
+            name TEXT NOT NUL,
+            flowID INTEGER PRIMARY KEY NOT NULL UNIQUE,
+            time TIME NOT NULL,
+            amount INTEGER NOT NULL,
+            category TEXT,
+            operation TEXT NOT NULL,
+            currency TEXT NOT NULL,
             FOREIGN KEY (Currency) REFERENCES wallet(Currency)
             );""")
 
         self.__db.execute("""CREATE TABLE history (
-            Time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            Operation TEXT NOT NULL,
-            Amount INTEGER NOT NULL,
-            Category TEXT,
-            Currency TEXT NOT NULL,
-            TransID INTEGER,
+            time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            operation TEXT NOT NULL,
+            amount INTEGER NOT NULL,
+            category TEXT,
+            currency TEXT NOT NULL,
+            transID INTEGER,
             FOREIGN KEY (Currency) REFERENCES wallet(Currency),
             FOREIGN KEY (TransID) REFERENCES flow(FlowID)
             );""")
@@ -59,7 +69,7 @@ class DB_connection:
         self.__db.execute(f"INSERT INTO wallet VALUES (\"{curr}\", {amount});")
     
 
-    def edit_wallet(self, curr: str, amount: int | float, slope: bool | None = True, set: bool | None = False) -> None:
+    def edit_wallet(self, curr: str, amount: int | float, slope: DB_enums | None = DB_enums.ADD, set: bool | None = False) -> None:
         # submits a Flow transaction, dealing with both expenses and income
         def execute(final):
             self.__db.execute(f"UPDATE wallet SET Amount = {final} WHERE Currency = {curr};")
@@ -71,11 +81,79 @@ class DB_connection:
         origin =  self.__db.execute(f"SELECT Amount FROM wallet WHERE curr = \"{curr}\";")
         origin = list(origin)[0][0]
 
-        if slope:
+        if slope == DB_enums.ADD:
             execute(origin + amount)
-        else:
+        elif slope == DB_enums.SUB:
             execute(origin - amount)
+        else:
+            raise ValueError("Wrong enum!")
     
 
     def get_wallet(self, curr: str):
         return dict(self.__db.execute(f"SELECT * FROM wallet WHERE Currency = \"{curr}\";"))
+    
+
+    def create_history(self, amount: int | float, currency: str, operation: DB_enums | None = DB_enums.ADD, category: str | None = None):
+        if operation == DB_enums.ADD:
+            operation = "WITH"
+        elif operation == DB_enums.SUB:
+            operation = "DEPO"
+        else:
+            raise ValueError("What kind of operation is this?!")
+        
+        s = """INSERT INTO history (amount, currency, operation"""
+        
+        if category:
+            s += ", category"
+        
+        s += f") VALUES ({amount}, {currency}, {operation}"
+
+        if category:
+            s+= f", {category}"
+        
+        s += ");"
+
+        self.__db.execute(s)
+    
+    def get_history(self, category: str | None = None, currency: str | None = None, name: str | None = None, order: DB_enums | None = DB_enums.TIME, ascending: bool | None = True):
+        
+        def enumap(enu: DB_enums):
+            match enu:
+                case DB_enums.TIME:
+                    return "history.time"
+                case DB_enums.CATEGORY:
+                    return "history.category"
+                case DB_enums.AMOUNT:
+                    return "history.amount"
+                case DB_enums.CURRENCY:
+                    return "history.currency"
+        
+        s = "SELECT history.time, history.amount, history.operation, history.category, history.currency, flow.name FROM history LEFT JOIN flow ON history.transID = flow.flowID"
+
+        if category or currency or name:
+            s += " WHERE "
+        
+        if category:
+            s += f"history.category='{category}'"
+        
+        if currency:
+            if category:
+                s += " AND "
+            s += f"history.currency='{currency}'"
+        
+        if name:
+            if category or currency:
+                s += " AND "
+            s += f"flow.name={name}"
+        
+        if order:
+            order = enumap(order)
+            if ascending:
+                ascending = "ASC"
+            else:
+                ascending = "DESC"
+            s += f"ORDER BY {order} {ascending}"
+        
+        s += ";"
+        
+        return self.__db.execute(s)
