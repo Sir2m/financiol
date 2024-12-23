@@ -35,6 +35,23 @@ class DB_connection:
         # a way to check that it is genuine path?
         cls.PATH = path
     
+
+    @staticmethod
+    def enumap(enu: DB_enums):
+        match enu:
+            case DB_enums.TIME:
+                return "time"
+            case DB_enums.CATEGORY:
+                return "category"
+            case DB_enums.AMOUNT:
+                return "amount"
+            case DB_enums.CURRENCY:
+                return "currency"
+            case DB_enums.ADD:
+                return "WITH"
+            case DB_enums.SUB:
+                return "DEPO"
+    
     def create(self):
         # for creating the tables if there is no tables already (new user)
         self.__db.execute("""CREATE TABLE wallet (
@@ -65,8 +82,8 @@ class DB_connection:
             );""")
 
     
-    def add_wallet(self, curr: str, amount: int | float) -> None:
-        self.__db.execute(f"INSERT INTO wallet VALUES (\"{curr}\", {amount});")
+    def add_wallet(self, currency: str, amount: int | float) -> None:
+        self.__db.execute(f"INSERT INTO wallet VALUES (\"{currency}\", {amount});")
     
 
     def edit_wallet(self, curr: str, amount: int | float, slope: DB_enums | None = DB_enums.ADD, set: bool | None = False) -> None:
@@ -93,7 +110,7 @@ class DB_connection:
         return dict(self.__db.execute(f"SELECT * FROM wallet WHERE Currency = \"{curr}\";"))
     
 
-    def create_history(self, amount: int | float, currency: str, operation: DB_enums | None = DB_enums.ADD, category: str | None = None):
+    def add_history(self, amount: int | float, currency: str, operation: DB_enums | None = DB_enums.ADD, category: str | None = None):
         if operation == DB_enums.ADD:
             operation = "WITH"
         elif operation == DB_enums.SUB:
@@ -117,17 +134,6 @@ class DB_connection:
     
     def get_history(self, category: str | None = None, currency: str | None = None, name: str | None = None, order: DB_enums | None = DB_enums.TIME, ascending: bool | None = True):
         
-        def enumap(enu: DB_enums):
-            match enu:
-                case DB_enums.TIME:
-                    return "history.time"
-                case DB_enums.CATEGORY:
-                    return "history.category"
-                case DB_enums.AMOUNT:
-                    return "history.amount"
-                case DB_enums.CURRENCY:
-                    return "history.currency"
-        
         s = "SELECT history.time, history.amount, history.operation, history.category, history.currency, flow.name FROM history LEFT JOIN flow ON history.transID = flow.flowID"
 
         if category or currency or name:
@@ -147,7 +153,7 @@ class DB_connection:
             s += f"flow.name={name}"
         
         if order:
-            order = enumap(order)
+            order = f"history.{DB_connection.enumap(order)}"
             if ascending:
                 ascending = "ASC"
             else:
@@ -157,3 +163,59 @@ class DB_connection:
         s += ";"
         
         return self.__db.execute(s)
+    
+    def add_flow(self, name: str, time, amount: int, currency: str, category: str | None = None, operation: DB_enums | None = DB_enums.ADD) -> None:
+        s = """INSERT INTO flow (name, amount, time, currency, operation"""
+        
+        if category:
+            s += ", category"
+        
+        s += f") VALUES ({name}, {amount}, {time}, {currency}, {operation}"
+
+        if category:
+            s+= f", {category}"
+        
+        s += ");"
+
+        self.__db.execute(s)
+    
+    def get_flow(self, name: str | None = None, operation: DB_enums | None = None, category: str | None = None, currency: str | None = None, order: DB_enums | None = None, ascending: bool | None = True):
+        
+        s = "SELECT name, time, amount, operation, category, currency FROM flow"
+
+        if category or currency or name or operation:
+            s += " WHERE "
+        
+        if category:
+            s += f"category='{category}'"
+        
+        if currency:
+            if category:
+                s += " AND "
+            s += f"currency='{currency}'"
+        
+        if name:
+            if category or currency:
+                s += " AND "
+            s += f"name={name}"
+        
+        if operation:
+            if category or currency or name:
+                s += " AND "
+            operation = DB_connection.enumap(operation)
+            s += f"operation={operation}"
+        
+        if order:
+            order =  DB_connection.enumap(order)
+            if ascending:
+                ascending = "ASC"
+            else:
+                ascending = "DESC"
+            s += f"ORDER BY {order} {ascending}"
+        
+        s += ";"
+        
+        return self.__db.execute(s)
+
+    def flow_hist(self):
+        ...
