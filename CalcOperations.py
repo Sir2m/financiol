@@ -1,3 +1,5 @@
+import db
+
 class CalcOperations:
 
     @staticmethod
@@ -28,3 +30,14 @@ class CalcOperations:
             result = principal * ((1 + rate) ** periods)
 
         return result
+    
+    @staticmethod
+    def currency_exchange(from_currency : str , to_currency : str, amount : int | float) -> int | float :
+        currency = db.DB_connection.CURRENCY
+          
+        f_currency = 1 / currency[from_currency] # from_currency / USD  
+        t_currency = currency[to_currency]  #  USD / to_currency   
+        rate = t_currency * f_currency       # from_currency / to_currency
+        changing = amount * rate 
+
+        return changing
