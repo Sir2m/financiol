@@ -14,7 +14,7 @@ class DB_enums(Enum):
 class DB_connection:
     PATH = "db.db"
     __instance = None
-    CURRENCY = requests.get("https://open.er-api.com/v6/latest").json()['rates']
+    # CURRENCY = requests.get("https://open.er-api.com/v6/latest").json()['rates']
 
     def __init__(self):
         self.__db = sqlite3.connect(self.PATH)
@@ -60,7 +60,7 @@ class DB_connection:
             );""")
         
         self.__db.execute("""CREATE TABLE flow (
-            name TEXT NOT NUL,
+            name TEXT NOT NULL,
             flowID INTEGER PRIMARY KEY NOT NULL UNIQUE,
             time TIME NOT NULL,
             amount INTEGER NOT NULL,
@@ -106,8 +106,12 @@ class DB_connection:
             raise ValueError("Wrong enum!")
     
 
-    def get_wallet(self, curr: str):
-        return dict(self.__db.execute(f"SELECT * FROM wallet WHERE Currency = \"{curr}\";"))
+    def get_wallet(self, currency: str | None = None):
+        s = "SELECT * FROM wallet"
+        if currency:
+            s += f" WHERE Currency = \"{currency}\""
+        s += ";"
+        return dict(self.__db.execute(s))
     
 
     def add_history(self, amount: int | float, currency: str, operation: DB_enums | None = DB_enums.ADD, category: str | None = None):
@@ -158,7 +162,7 @@ class DB_connection:
                 ascending = "ASC"
             else:
                 ascending = "DESC"
-            s += f"ORDER BY {order} {ascending}"
+            s += f" ORDER BY {order} {ascending}"
         
         s += ";"
         
@@ -211,7 +215,7 @@ class DB_connection:
                 ascending = "ASC"
             else:
                 ascending = "DESC"
-            s += f"ORDER BY {order} {ascending}"
+            s += f" ORDER BY {order} {ascending}"
         
         s += ";"
         
