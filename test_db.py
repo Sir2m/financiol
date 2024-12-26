@@ -1,6 +1,7 @@
 from db import *
 import pytest
 import os
+import pandas as pd
 
 
 @pytest.fixture
@@ -48,5 +49,12 @@ def test_wallet_edit_set():
 
 def test_wallet_get():
     wallet = dict(DB.get_wallet())
-    assert wallet == {"JPY":1500 , "USD" : 300 , "SAR" : 1000 }
-            
+    assert wallet == {"JPY":1500 , "USD" : 300 , "SAR" : 1000 }      
+
+
+def test_history():
+    DB.add_history(200, "USD", DB_enums.ADD, "Income")
+    DB.add_history(100, "EGP", DB_enums.SUB, "FOOD")
+    history = list(DB.get_history())
+    assert history[0][1] == 200 
+    assert history[1][3] == 'FOOD'  
