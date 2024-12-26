@@ -89,15 +89,13 @@ class DB_connection:
     def edit_wallet(self, curr: str, amount: int | float, slope: DB_enums | None = DB_enums.ADD, set: bool | None = False) -> None:
         # submits a Flow transaction, dealing with both expenses and income
         def execute(final):
-            self.__db.execute(f"UPDATE wallet SET Amount = {final} WHERE Currency = {curr};")
-        
+            self.__db.execute("UPDATE wallet SET amount = ? WHERE currency = ?", (final, curr))
         if set:
             execute(amount)
             return
         
-        origin =  self.__db.execute(f"SELECT Amount FROM wallet WHERE curr = \"{curr}\";")
+        origin =  self.__db.execute("SELECT amount FROM wallet WHERE currency = ?", (curr,))
         origin = list(origin)[0][0]
-
         if slope == DB_enums.ADD:
             execute(origin + amount)
         elif slope == DB_enums.SUB:
