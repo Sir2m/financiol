@@ -125,14 +125,15 @@ class DB_connection:
         if category:
             s += ", category"
         
-        s += f") VALUES ({amount}, {currency}, {operation}"
+        s += ") VALUES (?, ?, ?"
+        col = [amount, currency, operation]
 
         if category:
-            s+= f", {category}"
+            s+= ",?"
+            col.append(category)
         
-        s += ");"
-
-        self.__db.execute(s)
+        s += ");"     
+        self.__db.execute(s, col)
     
     def get_history(self, category: str | None = None, currency: str | None = None, name: str | None = None, order: DB_enums | None = DB_enums.TIME, ascending: bool | None = True):
         
