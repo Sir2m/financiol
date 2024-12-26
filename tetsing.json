@@ -1,0 +1,9 @@
+{
+    "users": {
+        "user1_id": {
+            "remember_me": true,
+            "theme": "dark",
+            "currency": "GBP"
+        }
+    }
+}
