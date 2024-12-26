@@ -1,6 +1,7 @@
 import sqlite3
 import requests
 from enum import Enum
+from werkzeug.security import check_password_hash, generate_password_hash
 
 class DB_enums(Enum):
     ADD = 1
@@ -221,3 +222,56 @@ class DB_connection:
 
     def flow_hist(self):
         ...
+    
+
+class DB_accounts:
+    PATH = "accounts.db"
+    __instance = None
+
+    def __init__(self):
+        self.__db = sqlite3.connect(self.PATH)
+
+
+    def __new__(cls):
+        if cls.__instance is None: 
+            cls.__instance = super(DB_connection, cls).__new__(cls)
+        return cls.__instance
+
+
+    def __del__(self):
+        self.__db.commit()
+        self.__db.close()
+
+    
+    # just made for the tests
+    @classmethod
+    def config(cls, path: str):
+        # a way to check that it is genuine path?
+        cls.PATH = path
+
+
+    def create(self):
+        self.__db.execute("""CREATE TABLE accounts (
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL
+            userID INTEGER NOT NULL UNIQUE PRIMARY KEY
+            primary_currency NOT NULL
+            );""")
+    
+    def uniquness(self, username):
+        unique = self.__db.execute("SELECT * FROM accounts WHERE username = ?", username)
+        
+        if len(unique) != 0:
+            return False
+        
+        return True
+
+    def add_account(self, username: str, password: str, currency: str):
+        self.__db.execute("INSERT INTO accounts (username, password, currency) VALUES (?, ?, ?)", (username, generate_password_hash(password), currency))
+
+    def login(self, username: str, password: str):
+        y = self.__db.execute("SELECT password, userID FROM accounts WHERE username = ?", (username))
+        if check_password_hash(y[0]["password"], password):
+            return y[0]["userID"]
+        else:
+            raise ValueError("Wrong Password!")
