@@ -1,4 +1,4 @@
-import db
+import financiol.db as db
 
 class CalcOperations:
 
@@ -34,10 +34,19 @@ class CalcOperations:
     @staticmethod
     def currency_exchange(from_currency : str , to_currency : str, amount : int | float) -> int | float :
         currency = db.DB_connection.CURRENCY
-          
-        f_currency = 1 / currency[from_currency] # from_currency / USD  
-        t_currency = currency[to_currency]  #  USD / to_currency   
-        rate = t_currency * f_currency       # from_currency / to_currency
+        from_currency = from_currency.upper()
+        to_currency = to_currency.upper()
+
+        try:
+          f_currency = 1 / currency[from_currency]  
+        except:
+            raise ValueError(f"{from_currency}: This is not a currency!")
+        
+        try:
+            t_currency = currency[to_currency]
+        except:
+            raise ValueError(f"{to_currency}: This is not a currency!")
+        rate = t_currency * f_currency
         changing = amount * rate 
 
         return changing
