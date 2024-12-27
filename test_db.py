@@ -2,6 +2,7 @@ from db import *
 import pytest
 import os
 import pandas as pd
+import datetime
 
 
 name = "test.db"
@@ -59,7 +60,58 @@ def test_history():
     DB.add_history(100, "EGP", DB_enums.SUB, "FOOD")
     history = list(DB.get_history())
     assert history[0][1] == 200 
-    assert history[1][3] == 'FOOD'  
+    assert history[1][3] == 'FOOD'
+
+
+def test_history_filter():
+    def df_it(cursor):
+        a = pd.DataFrame(
+            columns=["time", "amount", "operation", "category", "currency", "transID"]
+        )
+
+        def add(x: list):
+            a.loc[len(a)] = x
+
+        b = [x for x in map(add,map(lambda z: list(z), cursor))]
+        return a
+
+    DB.add_history(100, "EGP", DB_enums.ADD, "FOOD")
+    DB.add_history(200, "JPY", DB_enums.ADD, "FOOD")
+    DB.add_history(147, "SAR", DB_enums.ADD, "FOOD")
+    DB.add_history(625, "EGP", DB_enums.SUB, "HOSPITALITY")
+    DB.add_history(891, "USD", DB_enums.SUB, "ENTERTAINMENT")
+    DB.add_history(874, "JPY", DB_enums.SUB, "FOOD")
+
+    for i in df_it(DB.get_history()).sort_values("category").reset_index()["category"] == df_it(DB.get_history(order=DB_enums.CATEGORY))['category']:
+        assert i
+
+    for j in df_it(DB.get_history()).sort_values("category", ascending=False).reset_index()["category"] == df_it(DB.get_history(order=DB_enums.CATEGORY, ascending=False))['category']:
+        assert j
+
+    for k in df_it(DB.get_history()).sort_values("amount").reset_index()["amount"] == df_it(DB.get_history(order=DB_enums.AMOUNT))['amount']:
+        assert k
+
+    for l in df_it(DB.get_history()).sort_values("amount", ascending=False).reset_index()["amount"] == df_it(DB.get_history(order=DB_enums.AMOUNT, ascending=False))['amount']:
+        assert l
+
+    for m in df_it(DB.get_history()).sort_values("currency").reset_index()["currency"] == df_it(DB.get_history(order=DB_enums.CURRENCY))['currency']:
+        assert m
+
+    for n in df_it(DB.get_history()).sort_values("currency", ascending=False).reset_index()["currency"] == df_it(DB.get_history(order=DB_enums.CURRENCY, ascending=False))['currency']:
+        assert n
+
+    for o in df_it(DB.get_history()).sort_values("time").reset_index()["time"] == df_it(DB.get_history(order=DB_enums.TIME))['time']:
+        assert o 
+
+    for p in df_it(DB.get_history()).sort_values("time", ascending=False).reset_index()["time"] == df_it(DB.get_history(order=DB_enums.TIME, ascending=False))['time']:
+        assert p
+    
+    for q in df_it(DB.get_history())[df_it(DB.get_history())['category'] == 'FOOD'].reset_index()['category'] == df_it(DB.get_history(category="FOOD"))['category']:
+        assert q
+    
+    for r in df_it(DB.get_history())[df_it(DB.get_history())['currency'] == 'EGP'].reset_index()['currency'] == df_it(DB.get_history(currency="EGP"))['currency']:
+        assert r
+
 
 
 

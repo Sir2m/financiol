@@ -67,8 +67,9 @@ class DB_connection:
             amount INTEGER NOT NULL,
             category TEXT,
             operation TEXT NOT NULL,
-            currency TEXT NOT NULL,
-            FOREIGN KEY (Currency) REFERENCES wallet(Currency)
+            price_currency TEXT NOT NULL,
+            pay_currency TEXT,
+            FOREIGN KEY (price_currency) REFERENCES wallet(currency)
             );""")
 
         self.__db.execute("""CREATE TABLE history (
@@ -168,13 +169,16 @@ class DB_connection:
         
         return self.__db.execute(s)
     
-    def add_flow(self, name: str, time, amount: int, currency: str, category: str | None = None, operation: DB_enums | None = DB_enums.ADD) -> None:
-        s = """INSERT INTO flow (name, amount, time, currency, operation"""
+    def add_flow(self, name: str, time, amount: int, price_currency: str, pay_currency:str | None = None, category: str | None = None, operation: DB_enums | None = DB_enums.ADD) -> None:
+        s = """INSERT INTO flow (name, amount, time, pay_currency, price_currency, operation"""
         
+        if not pay_currency:
+            pay_currency = price_currency
+
         if category:
             s += ", category"
         
-        s += f") VALUES ({name}, {amount}, {time}, {currency}, {operation}"
+        s += f") VALUES ({name}, {amount}, {time}, {pay_currency}, {price_currency}, {operation}"
 
         if category:
             s+= f", {category}"
@@ -183,28 +187,34 @@ class DB_connection:
 
         self.__db.execute(s)
     
-    def get_flow(self, name: str | None = None, operation: DB_enums | None = None, category: str | None = None, currency: str | None = None, order: DB_enums | None = None, ascending: bool | None = True):
+    def get_flow(self, name: str | None = None, operation: DB_enums | None = None, category: str | None = None, pay_currency: str | None = None, price_currency: str | None = None, order: DB_enums | None = None, ascending: bool | None = True):
         
-        s = "SELECT name, time, amount, operation, category, currency FROM flow"
+        s = "SELECT name, time, amount, operation, category, pay_currency, price_currency FROM flow"
 
-        if category or currency or name or operation:
+        if category or pay_currency or price_currency or name or operation:
             s += " WHERE "
         
         if category:
             s += f"category='{category}'"
         
-        if currency:
+        if pay_currency:
             if category:
                 s += " AND "
-            s += f"currency='{currency}'"
+            s += f"currency='{pay_currency}'"
         
+        if price_currency:
+            if category or pay_currency:
+                s += " AND "
+            s += f"currency='{price_currency}'"
+
+
         if name:
-            if category or currency:
+            if category or pay_currency or price_currency:
                 s += " AND "
             s += f"name={name}"
         
         if operation:
-            if category or currency or name:
+            if category or pay_currency or price_currency or name:
                 s += " AND "
             operation = DB_connection.enumap(operation)
             s += f"operation={operation}"
