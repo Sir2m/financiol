@@ -144,6 +144,14 @@ class HomePage(ctk.CTk):
             "Open Calculator",
             "Add Reminder"  # New button added here
         ]
+        button_functions = [
+            self.add_amount,
+            self.subtract_amount,
+            self.history,
+            self.graphs,
+            self.open_calc,
+            self.add_reminder
+        ]
         # this is the frame that will hold the buttons
         self.button_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
         self.button_frame.grid(row=1, column=0, rowspan=5, sticky="nsew")
@@ -151,24 +159,16 @@ class HomePage(ctk.CTk):
         self.button_frame.grid_columnconfigure(1, weight=0)
         self.button_frame.grid_columnconfigure(2, weight=1)
         # this loop creates the buttons and adds them to the button frame
-        for i, text in enumerate(button_texts):
-            if text == "Add Reminder":
-                button = ctk.CTkButton(
-                    self.button_frame,
-                    text=text,
-                    corner_radius=20,
-                    height=self.calculate_button_height(),
-                    width=self.calculate_button_width(),
-                    command=self.add_reminder  # Link the button to the add_reminder method
-                )
-            else:
-                button = ctk.CTkButton(
-                    self.button_frame,
-                    text=text,
-                    corner_radius=20,
-                    height=self.calculate_button_height(),
-                    width=self.calculate_button_width()
-                )
+        for i, text in enumerate(zip(button_texts, button_functions)):
+            button = ctk.CTkButton(
+                self.button_frame,
+                text=text[0],
+                corner_radius=20,
+                height=self.calculate_button_height(),
+                width=self.calculate_button_width(),
+                command=text[1]  # Link the button to the add_reminder method
+            )
+
             button.grid(row=i, column=1, pady=10)
             self.buttons.append(button)
         # this is the settings button that will open the settings menu
@@ -314,6 +314,21 @@ class HomePage(ctk.CTk):
             window.destroy()
         except ValueError as e:
             messagebox.showerror("Error", str(e))
+    
+    def add_amount(self):
+        ...
+    
+    def subtract_amount():
+        ...
+    
+    def history(self):
+        ...
+    
+    def graphs(self):
+        ...
+    
+    def open_calc(self):
+        ...
 
 # this is the main function that runs the home page
 if __name__ == "__main__":
