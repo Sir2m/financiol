@@ -143,8 +143,8 @@ def test_uniquness():
 
 
 def test_login():
-    assert DB_acc.login("Moh", "5512") == 1
-    assert DB_acc.login("uya", "5512") == 2
+    assert DB_acc.login("Moh", "5512") == [1, "Moh"]
+    assert DB_acc.login("uya", "5512") == [2, "uya"]
     with pytest.raises(ValueError):
         DB_acc.login("onm", "8895")
         DB_acc.login("lme", "5512")
