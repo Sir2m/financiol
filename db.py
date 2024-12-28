@@ -242,6 +242,12 @@ class DB_connection:
         return self.__db.execute(s)
 
 
+    def change_account(self):
+        self.__db.commit()
+        self.__db.close()
+        self.__db = sqlite3.connect(self.PATH)
+
+
     def execute(self, e):
         try:
             self.__db.execute(e)

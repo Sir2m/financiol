@@ -17,6 +17,7 @@ class Meta_data:
                         "theme": "light",
                         "currency": "",
                         "user_id": "",
+                        "user_name": "",
                         "other_users": {}
                     }
                 json.dump(x, file, indent=3)
@@ -24,6 +25,7 @@ class Meta_data:
         self.__theme = self.__data['theme']
         self.__currency = self.__data['currency']
         self.__id = self.__data['user_id']
+        self.__name = self.__data['user_name']
 
 
     def __new__(cls):
@@ -36,12 +38,13 @@ class Meta_data:
         self.__data['theme'] = self.__theme
         self.__data['currency'] = self.__currency
         self.__data['user_id'] = self.__id
+        self.__data['user_name'] = self.__name
         with open(self.PATH, 'w') as file:
             json.dump(self.__data, file, indent=4)
 
 
     def get_data(self):
-        return [self.__theme, self.__currency, self.__id]
+        return [self.__theme, self.__currency, self.__id, self.__name]
 
 
     def theme_change(self):
@@ -61,20 +64,25 @@ class Meta_data:
             self.__data['other_users'][self.__id] = {
                 "theme": self.__theme,
                 "currency": self.__currency,
-            } 
+                "user_name": self.__name
+            }
+
         new = self.__data['other_users'][id]
         self.__id = id
         self.__theme = new["theme"]
         self.__currency = new["currency"]
+        self.__name = new['user_name']
 
 
-    def set_new_account(self, remember, id, currency):
+    def set_new_account(self, remember, id, currency, user_name):
         if remember:
             self.__data['other_users'][self.__id] = {
                 "theme": self.__theme,
                 "currency": self.__currency,
+                "user_name": self.__name
             }
 
         self.__id = id
         self.__theme = "light"
         self.__currency = currency
+        self.__name = user_name
