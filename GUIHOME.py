@@ -378,7 +378,7 @@ class HomePage(ctk.CTk):
         self.settings_visible = not self.settings_visible
     # this function toggles the appearance mode
     def toggle_mode(self):
-        self.meta.theme_change()
+        self.json.theme_change()
         if self.mode_switch.get() == 1:
             ctk.set_appearance_mode("dark")
         else:
