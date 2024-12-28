@@ -451,6 +451,18 @@ class HomePage(ctk.CTk):
             messagebox.showerror("Error", str(e))
     
     def add_subtract_amount(self):
+        def work(operation):
+            category = category_entry.get()
+            currency = currency_entry.get()
+            amount = amount_entry.get()
+            self.__db.add_history(amount, currency, operation, category)
+            self.__db.edit_wallet(currency, int(amount), operation)
+        
+        def add():
+            work(db.DB_enums.ADD)
+        
+        def sub():
+            work(db.DB_enums.SUB)
         # Create a new window for adding or subtracting amount
         amount_window = ctk.CTkToplevel(self)
         amount_window.title("Add/Subtract Amount")
@@ -480,11 +492,16 @@ class HomePage(ctk.CTk):
         amount_entry.pack(pady=5)
 
         # Submit button
-        submit_button = ctk.CTkButton(amount_window, text="Submit")
-        submit_button.pack(pady=10)
+        add_button = ctk.CTkButton(amount_window, text="Add", command=add)
+        add_button.pack(pady=10)
+
+        sub_button = ctk.CTkButton(amount_window, text="Subtract", command=sub)
+        sub_button.pack(pady=10)
     
     def history(self):
-        ...
+        amount_window = ctk.CTkToplevel(self)
+        amount_window.title("Add/Subtract Amount")
+        amount_window.geometry("500x600")
     
     def graphs(self):
         ...
