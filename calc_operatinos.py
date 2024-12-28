@@ -13,9 +13,8 @@ class CalcOperations:
             final = value + change         #taxs
         else:
             final = value - change         #sales
-            
-            return final 
 
+        return final 
 
 
     @staticmethod
@@ -43,4 +42,4 @@ class CalcOperations:
         rate = t_currency * f_currency         # from_currency / to_currency   
         changing = amount * rate                                                      
         
-        return changing
+        return changing    
