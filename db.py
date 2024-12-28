@@ -19,6 +19,10 @@ class DB_connection:
 
     def __init__(self):
         self.__db = sqlite3.connect(self.PATH)
+        try:
+            self.__create()
+        except:
+            pass
 
 
     def __new__(cls):
@@ -54,7 +58,7 @@ class DB_connection:
                 return "DEPO"
 
 
-    def create(self):
+    def __create(self):
         self.__db.execute("""CREATE TABLE wallet (
             currency TEXT NOT NULL PRIMARY KEY UNIQUE,
             amount INTEGER NOT NULL
@@ -242,6 +246,12 @@ class DB_connection:
         return self.__db.execute(s)
 
 
+    def change_account(self):
+        self.__db.commit()
+        self.__db.close()
+        self.__db = sqlite3.connect(self.PATH)
+
+
     def execute(self, e):
         try:
             self.__db.execute(e)
@@ -255,6 +265,10 @@ class DB_accounts:
 
     def __init__(self):
         self.__db = sqlite3.connect(self.PATH)
+        try:
+            self.__create()
+        except:
+            pass
 
 
     def __new__(cls):
@@ -274,7 +288,7 @@ class DB_accounts:
         cls.PATH = path
 
 
-    def create(self):
+    def __create(self):
         self.__db.execute("""CREATE TABLE accounts (
             username TEXT NOT NULL UNIQUE,
             password TEXT NOT NULL,
@@ -297,9 +311,9 @@ class DB_accounts:
 
 
     def login(self, username: str, password: str):
-        y = list(self.__db.execute(f"SELECT password, userID FROM accounts WHERE username = '{username}'"))
+        y = list(self.__db.execute(f"SELECT password, userID, username, primary_currency FROM accounts WHERE username = '{username}'"))
 
         if y and check_password_hash(y[0][0], password):
-            return y[0][1]
+            return [y[0][1], y[0][2], y[0][3]]
         else:
             raise ValueError("Wrong Password!")
