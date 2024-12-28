@@ -274,16 +274,14 @@ class HomePage(ctk.CTk):
         # this is the list of buttons that will be displayed on the home page
         self.buttons = []
         button_texts = [
-            "Add Amount",
-            "Subtract Amount",
+            "Add/Subtract Amount",
             "Transaction History",
             "Graph History",
             "Open Calculator",
             "Add Reminder"  # New button added here
         ]
         button_functions = [
-            self.add_amount,
-            self.subtract_amount,
+            self.add_subtract_amount,
             self.history,
             self.graphs,
             self.open_calc,
@@ -452,11 +450,38 @@ class HomePage(ctk.CTk):
         except ValueError as e:
             messagebox.showerror("Error", str(e))
     
-    def add_amount(self):
-        ...
-    
-    def subtract_amount():
-        ...
+    def add_subtract_amount(self):
+        # Create a new window for adding or subtracting amount
+        amount_window = ctk.CTkToplevel(self)
+        amount_window.title("Add/Subtract Amount")
+        amount_window.geometry("500x600")
+
+        # Category entry
+        category_label = ctk.CTkLabel(amount_window, text="Category:")
+        category_label.pack(pady=5)
+        category_entry = ctk.CTkEntry(amount_window)
+        category_entry.pack(pady=5)
+        # Details entry
+        details_label = ctk.CTkLabel(amount_window, text="Details:")
+        details_label.pack(pady=5)
+        details_entry = ctk.CTkEntry(amount_window)
+        details_entry.pack(pady=5)
+
+        # Currency entry
+        currency_label = ctk.CTkLabel(amount_window, text="Currency:")
+        currency_label.pack(pady=5)
+        currency_entry = ctk.CTkEntry(amount_window)
+        currency_entry.pack(pady=5)
+
+        # Amount entry
+        amount_label = ctk.CTkLabel(amount_window, text="Amount:")
+        amount_label.pack(pady=5)
+        amount_entry = ctk.CTkEntry(amount_window)
+        amount_entry.pack(pady=5)
+
+        # Submit button
+        submit_button = ctk.CTkButton(amount_window, text="Submit")
+        submit_button.pack(pady=10)
     
     def history(self):
         ...
