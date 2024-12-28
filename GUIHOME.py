@@ -2,6 +2,8 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import json
+import testingjson
+import db
 from reminders import submit_reminder, setup_database, start_reminder_checker
 
 ctk.set_appearance_mode("System")
@@ -99,6 +101,8 @@ def change_theme_callback(theme_manager):
         messagebox.showinfo("Success", "Theme applied successfully!")
 # this is the main class for the home page itself
 class HomePage(ctk.CTk):
+    meta = testingjson.Meta_data()
+    db_u = db.DB_connection()
     def __init__(self):
         super().__init__()
 
@@ -122,9 +126,11 @@ class HomePage(ctk.CTk):
         for i in range(7):
             self.main_frame.grid_rowconfigure(i, weight=1)
 
+        theme, currency, id, name = self.meta.get_data()
+        data = self.db_u.get_wallet(currency)
         self.amount_label = ctk.CTkLabel(
             self.main_frame, 
-            text="Amount: $0",
+            text=f"Amount: ${data[currency]}",
             font=("Arial", self.calculate_font_size())
         )
         self.amount_label.grid(row=0, column=0, pady=10, sticky="nsew")
@@ -237,6 +243,7 @@ class HomePage(ctk.CTk):
         self.settings_visible = not self.settings_visible
     # this function toggles the appearance mode
     def toggle_mode(self):
+        self.meta.theme_change()
         if self.mode_switch.get() == 1:
             ctk.set_appearance_mode("dark")
         else:
