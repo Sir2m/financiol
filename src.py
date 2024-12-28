@@ -1,61 +1,21 @@
-from datetime import datetime
+import db
+import testingjson
+import customtkinter as ctk
 
-class Wallet:
-    # needing singlton?
-    # adding db changes
-    # reading from db at __init__??
-    # adding logger
-    # treating currency
+json = testingjson.Meta_data()
+meta = json.get_data()
 
-    def __init__(self, amount: int | float):
-        self.amount = amount
+app = ctk.CTk()
+
+if meta[2]:
+    app.geometry("300x450")
+    app.title("Hey There")
+else:
+    app.geometry("300x450")
+    app.title("Login & Sign Up")
     
-    @property
-    def amount(self):
-        return self.__amount
-    
-    @amount.setter
-    def amount (self, amount: int | float):
-        self.__amount = amount
-    
-    def transaction(self, amount: int | float):
-        self.amount += amount
-    # def deposit(self, amount: int | float):
-    #     self.amount += amount
-    
-    # def withdraw(self, amount: int | float):
-    #     self.amount -= amount
+    result_label = ctk.CTkLabel(master=app, text="")
+    result_label.pack(pady=6, padx=10)
 
-
-class Transaction:
-    def __init__(self, amount: int | float, name: str, category: str | None = None):
-        ...
-    ...
-
-
-class Deposit(Transaction):
-    def __init__(self, amount: int | float, name: str = "deposit", category: str | None = None):
-        super().__init__(name, amount, category)
-
-
-class Withdraw(Transaction):
-    def __init__(self, amount: int | float, name: str = "deposit", category: str | None = None):
-        super().__init__(name, amount, category)
-
-
-class Flow(Transaction):
-    def __init__(self, name: str, amount: int | float, period: datetime, category: str | None = None):
-        super().__init__(name, amount, category)
-        self.data = period
-
-
-class Expenses(Flow):
-    def __init__(self, name, amount, period, category = None):
-        super().__init__(name, amount, period, category)
-
-
-class Income(Flow):
-    def __init__(self, name, amount, period, category = None):
-        super().__init__(name, amount, period, category)
-
- 
+app.mainloop()
+json.save()

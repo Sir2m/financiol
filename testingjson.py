@@ -24,7 +24,6 @@ class Meta_data:
         self.__theme = self.__data['theme']
         self.__currency = self.__data['currency']
         self.__id = self.__data['user_id']
-        print(self.__theme)
 
 
     def __new__(cls):
@@ -33,12 +32,16 @@ class Meta_data:
         return cls.__data
 
 
-    def __del__(self):
+    def save(self):
         self.__data['theme'] = self.__theme
         self.__data['currency'] = self.__currency
         self.__data['user_id'] = self.__id
         with open(self.PATH, 'w') as file:
             json.dump(self.__data, file, indent=4)
+
+
+    def get_data(self):
+        return [self.__theme, self.__currency, self.__id]
 
 
     def theme_change(self):
