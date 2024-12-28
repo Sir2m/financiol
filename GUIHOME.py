@@ -2,6 +2,8 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import json
+from reminders import submit_reminder, setup_database, start_reminder_checker
+
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("green")
 
@@ -100,8 +102,12 @@ class HomePage(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        # Initialize the database and start the reminder checker
+        setup_database()
+        start_reminder_checker()
+
         self.title("Financiol")
-        self.geometry("700x550")
+        self.geometry("750x750")
         self.minsize(600, 400)
 
         self.base_width = 600
@@ -129,7 +135,8 @@ class HomePage(ctk.CTk):
             "Subtract Amount",
             "Transaction History",
             "Graph History",
-            "Open Calculator"
+            "Open Calculator",
+            "Add Reminder"  # New button added here
         ]
         # this is the frame that will hold the buttons
         self.button_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
@@ -139,13 +146,23 @@ class HomePage(ctk.CTk):
         self.button_frame.grid_columnconfigure(2, weight=1)
         # this loop creates the buttons and adds them to the button frame
         for i, text in enumerate(button_texts):
-            button = ctk.CTkButton(
-                self.button_frame,
-                text=text,
-                corner_radius=20,
-                height=self.calculate_button_height(),
-                width=self.calculate_button_width()
-            )
+            if text == "Add Reminder":
+                button = ctk.CTkButton(
+                    self.button_frame,
+                    text=text,
+                    corner_radius=20,
+                    height=self.calculate_button_height(),
+                    width=self.calculate_button_width(),
+                    command=self.add_reminder  # Link the button to the add_reminder method
+                )
+            else:
+                button = ctk.CTkButton(
+                    self.button_frame,
+                    text=text,
+                    corner_radius=20,
+                    height=self.calculate_button_height(),
+                    width=self.calculate_button_width()
+                )
             button.grid(row=i, column=1, pady=10)
             self.buttons.append(button)
         # this is the settings button that will open the settings menu
@@ -206,11 +223,11 @@ class HomePage(ctk.CTk):
     # these two functions calculate the size of the buttons based on the window
     def calculate_button_width(self):
         window_width = self.winfo_width()
-        return int(window_width * 0.25)
+        return int(window_width * 0.25 * 0.7)  # Reduce width by 30%
 
     def calculate_button_height(self):
         window_height = self.winfo_height()
-        return int(window_height * 0.08)
+        return int(window_height * 0.08 * 0.7)  # Reduce height by 30%
     # this function toggles the settings menu
     def toggle_settings_menu(self):
         if self.settings_visible:
@@ -237,6 +254,60 @@ class HomePage(ctk.CTk):
             button.configure(height=button_height, width=button_width)
 
         self.settings_button.configure(height=button_height, width=button_width // 2)
+    
+    # this function is called when the user clicks the add reminder button (do the same with calculator)
+    def add_reminder(self):
+        # Create a new window for adding a reminder
+        reminder_window = ctk.CTkToplevel(self)
+        reminder_window.title("Add Reminder")
+        reminder_window.geometry("300x200")
+
+        # Date entry
+        date_label = ctk.CTkLabel(reminder_window, text="Date (YYYY-MM-DD):")
+        date_label.pack(pady=5)
+        date_entry = ctk.CTkEntry(reminder_window)
+        date_entry.pack(pady=5)
+
+        # Time entry
+        time_label = ctk.CTkLabel(reminder_window, text="Time (HH:MM):")
+        time_label.pack(pady=5)
+        time_entry = ctk.CTkEntry(reminder_window)
+        time_entry.pack(pady=5)
+
+        # AM/PM entry
+        ampm_label = ctk.CTkLabel(reminder_window, text="AM/PM:")
+        ampm_label.pack(pady=5)
+        ampm_entry = ctk.CTkEntry(reminder_window)
+        ampm_entry.pack(pady=5)
+
+        # Reminder text entry
+        text_label = ctk.CTkLabel(reminder_window, text="Reminder Text:")
+        text_label.pack(pady=5)
+        text_entry = ctk.CTkEntry(reminder_window)
+        text_entry.pack(pady=5)
+
+        # Submit button
+        submit_button = ctk.CTkButton(
+            reminder_window,
+            text="Submit",
+            command=lambda: self.submit_reminder(
+                date_entry.get(),
+                time_entry.get(),
+                text_entry.get(),
+                ampm_entry.get(),
+                reminder_window
+            )
+        )
+        submit_button.pack(pady=10)
+
+    def submit_reminder(self, date, time, text, ampm, window):
+        try:
+            submit_reminder(date, time, text, ampm)
+            messagebox.showinfo("Success", "Reminder added successfully!")
+            window.destroy()
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+
 # this is the main function that runs the home page
 if __name__ == "__main__":
     app = HomePage()
