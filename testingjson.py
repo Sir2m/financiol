@@ -55,10 +55,6 @@ class Meta_data:
         self.__theme = x[self.__theme]
 
 
-    def set_base_currency(self, currency:str):
-        self.__currency = currency
-
-
     def change_account(self, remember, id):
         if remember:
             self.__data['other_users'][self.__id] = {

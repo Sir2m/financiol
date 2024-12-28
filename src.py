@@ -1,5 +1,6 @@
 import db
 import testingjson
+import log_sign_feature
 import customtkinter as ctk
 
 json = testingjson.Meta_data()
@@ -8,14 +9,12 @@ meta = json.get_data()
 app = ctk.CTk()
 
 if meta[2]:
-    app.geometry("300x450")
-    app.title("Hey There")
+    db.DB_connection.config(f"user{meta[2]}db.db")
 else:
-    app.geometry("300x450")
-    app.title("Login & Sign Up")
-    
-    result_label = ctk.CTkLabel(master=app, text="")
-    result_label.pack(pady=6, padx=10)
+    log_sign_feature.log_in(app)
+
+app.geometry("300x450")
+app.title("Hey There")
 
 app.mainloop()
 json.save()
