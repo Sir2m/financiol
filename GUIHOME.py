@@ -267,7 +267,7 @@ class HomePage(ctk.CTk):
         # data = self.db_u.get_wallet(currency)
         self.amount_label = ctk.CTkLabel(
             self.main_frame, 
-            text=f"Amount: $0",
+            text=f"Amount: ${self.__db.get_wallet(f'{self.json.get_data()[1]}')[self.json.get_data()[1]]}",
             font=("Arial", self.calculate_font_size())
         )
         self.amount_label.grid(row=0, column=0, pady=10, sticky="nsew")
