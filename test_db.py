@@ -1,9 +1,6 @@
 from db import *
 import pytest
-import os
 import pandas as pd
-import datetime
-
 
 name = "test.db"
 DB_connection.config(name)
@@ -112,6 +109,11 @@ def test_history_filter():
     for r in df_it(DB.get_history())[df_it(DB.get_history())['currency'] == 'EGP'].reset_index()['currency'] == df_it(DB.get_history(currency="EGP"))['currency']:
         assert r
 
+
+def test_execute():
+    DB.execute("SELECT * FROM wallet")
+    with pytest.raises(ValueError):
+        DB.execute("None")
 
 
 
