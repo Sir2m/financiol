@@ -5,8 +5,6 @@ import json
 import testingjson
 import db
 from reminders import submit_reminder, setup_database, start_reminder_checker
-import pandas as pd
-import charts  # Import the charts module
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("green")
@@ -103,6 +101,9 @@ def change_theme_callback(theme_manager):
         messagebox.showinfo("Success", "Theme applied successfully!")
 # this is the main class for the home page itself
 class HomePage(ctk.CTk):
+    # meta = testingjson.Meta_data()
+    # db_u = db.DB_connection()
+    # super().__init__()
     def __init__(self):
         super().__init__()
         self.json = testingjson.Meta_data()
@@ -115,18 +116,11 @@ class HomePage(ctk.CTk):
         else:
             self.log_in()
 
+
     def res_lab(self):
         result_label = ctk.CTkLabel(master=self, text="")
-        result_label.grid(row=0, column=0, pady=4, padx=6)  # Reduced padding
+        result_label.grid(row=0, column=0, pady=6, padx=10)
         return result_label
-
-    def center_frame(self, frame):
-        frame.grid(row=0, column=0, sticky="nsew")
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
-        for i in range(3):
-            frame.rowconfigure(i, weight=1)
-            frame.columnconfigure(0, weight=1)
 
     def log_in(self):
         self.geometry("300x450")
@@ -141,104 +135,110 @@ class HomePage(ctk.CTk):
                 id, y, primary_currency = self.acount.login(username, password)
                 result_label.configure(text="Login successful", text_color="green")
                 self.json.set_new_account(False, id, primary_currency, username)
-                db.DB_connection.config(f"user{id}db.db")
+                
+
+                db.DB_connection.config(f"user{id}db.db")  # PUT WHAT YOU WANT TO LOGIN HERE ///////////////////////////////////////////
+                self.__db = db.DB_connection()
                 login_frame.grid_forget()
                 self.home_page()
             except ValueError as s:
-                result_label.configure(text=str(s), text_color="red")
+                result_label.configure(text=str(s), text_color="red")  # wrong password
 
-        def switch_to_signup():
+        def switch_to_signup():  # switch to the Sign-Up frame
             login_frame.grid_forget()
             self.sign_up()
 
         login_frame = ctk.CTkFrame(master=self)
-        self.center_frame(login_frame)
+        login_frame.grid(row=1, column=0, pady=20, padx=30)
 
         login_label = ctk.CTkLabel(master=login_frame, text="Login", font=("Arial", 16))
-        login_label.grid(row=0, column=0, pady=8)  # Reduced padding
+        login_label.grid(row=0, column=0, pady=12, padx=10)
 
         login_box = ctk.CTkEntry(master=login_frame, placeholder_text="Username")
-        login_box.grid(row=1, column=0, pady=8)  # Reduced padding
+        login_box.grid(row=1, column=0, pady=12, padx=10)
 
         password_box = ctk.CTkEntry(master=login_frame, placeholder_text="Password", show="*")
-        password_box.grid(row=2, column=0, pady=8)  # Reduced padding
+        password_box.grid(row=2, column=0, pady=12, padx=10)
 
         login_button = ctk.CTkButton(master=login_frame, text="Login", command=login_user)
-        login_button.grid(row=3, column=0, pady=8)  # Reduced padding
+        login_button.grid(row=3, column=0, pady=12, padx=10)
 
         login_question_label = ctk.CTkLabel(master=login_frame, text="Don't have an account?")
-        login_question_label.grid(row=4, column=0, pady=6)  # Reduced padding
+        login_question_label.grid(row=4, column=0, pady=6, padx=10)
 
         signup_switch_button = ctk.CTkButton(master=login_frame, text="Sign Up", command=switch_to_signup)
-        signup_switch_button.grid(row=5, column=0, pady=6)  # Reduced padding
+        signup_switch_button.grid(row=5, column=0, pady=6, padx=10)
 
     def sign_up(self):
         signup_frame = ctk.CTkFrame(master=self)
-        self.center_frame(signup_frame)
+        signup_frame.grid(row=1, column=0, pady=20, padx=30)
 
         result_label = self.res_lab()
 
-        def register_user():
+        def register_user():  # registration function
             username = username_box.get()
             if self.acount.uniquness(username):
                 signup_frame.grid_forget()
-                self.set_amount(result_label, username, password_box_reg.get())
+                set_amount_frame.grid(row=1, column=0, pady=20, padx=30)
                 result_label.configure(text="Registration successful", text_color="green")
             else:
                 result_label.configure(text="Username already taken", text_color="red")
 
-        def switch_to_login():
+        def switch_to_login():  # switch to the Login frame
             signup_frame.grid_forget()
             self.log_in()
 
+        def set_amount():
+            amount = set_amount_box.get()
+            username = username_box.get()
+            password = password_box_reg.get()
+            primary_currency = currency_entry.get()
+
+            self.acount.add_account(username, password, primary_currency)
+            id, y, z = self.acount.login(username, password)
+            self.json.set_new_account(False, id, primary_currency, username)
+
+            db.DB_connection.config(f"user{id}db.db")
+            self.__db = db.DB_connection()
+            self.__db.add_wallet(primary_currency, amount)
+            set_amount_frame.grid_forget()
+            self.home_page()  # /////////////////////////////////////////////////////////////////////////////////////
+
         signup_label = ctk.CTkLabel(master=signup_frame, text="Sign Up", font=("Arial", 16))
-        signup_label.grid(row=0, column=0, pady=8)  # Reduced padding
+        signup_label.grid(row=0, column=0, pady=12, padx=10)
 
         username_box = ctk.CTkEntry(master=signup_frame, placeholder_text="Username")
-        username_box.grid(row=1, column=0, pady=8)  # Reduced padding
+        username_box.grid(row=1, column=0, pady=12, padx=10)
 
         password_box_reg = ctk.CTkEntry(master=signup_frame, placeholder_text="Password", show="*")
-        password_box_reg.grid(row=2, column=0, pady=8)  # Reduced padding
+        password_box_reg.grid(row=2, column=0, pady=12, padx=10)
 
         register_button = ctk.CTkButton(master=signup_frame, text="Register", command=register_user)
-        register_button.grid(row=3, column=0, pady=8)  # Reduced padding
+        register_button.grid(row=3, column=0, pady=12, padx=10)
 
         signup_question_label = ctk.CTkLabel(master=signup_frame, text="Already have an account?")
-        signup_question_label.grid(row=4, column=0, pady=6)  # Reduced padding
+        signup_question_label.grid(row=4, column=0, pady=6, padx=10)
 
         login_switch_button = ctk.CTkButton(master=signup_frame, text="Login", command=switch_to_login)
-        login_switch_button.grid(row=5, column=0, pady=6)  # Reduced padding
+        login_switch_button.grid(row=5, column=0, pady=6, padx=10)
 
-    def set_amount(self, result_label, username, password):
+        # set_amount frame
         set_amount_frame = ctk.CTkFrame(master=self)
-        self.center_frame(set_amount_frame)
-
-        def finalize_registration():
-            amount = set_amount_box.get()
-            primary_currency = currency_entry.get()
-            self.acount.add_account(username, password, primary_currency)
-            id, _, _ = self.acount.login(username, password)
-            self.json.set_new_account(False, id, primary_currency, username)
-            db.DB_connection.config(f"user{id}db.db")
-            dbc = db.DB_connection()
-            dbc.add_wallet(primary_currency, amount)
-            set_amount_frame.grid_forget()
-            self.home_page()
 
         set_currency_label = ctk.CTkLabel(master=set_amount_frame, text="Set primary currency", font=("Arial", 16))
-        set_currency_label.grid(row=0, column=0, pady=8)  # Reduced padding
+        set_currency_label.grid(row=0, column=0, pady=12, padx=10)
 
         currency_entry = ctk.CTkEntry(master=set_amount_frame, placeholder_text="Primary Currency")
-        currency_entry.grid(row=1, column=0, pady=8)  # Reduced padding
+        currency_entry.grid(row=1, column=0, pady=12, padx=10)
 
         set_amount_label = ctk.CTkLabel(master=set_amount_frame, text="Set Amount", font=("Arial", 16))
-        set_amount_label.grid(row=2, column=0, pady=8)  # Reduced padding
+        set_amount_label.grid(row=2, column=0, pady=12, padx=10)
 
         set_amount_box = ctk.CTkEntry(master=set_amount_frame, placeholder_text="Amount")
-        set_amount_box.grid(row=3, column=0, pady=8)  # Reduced padding
+        set_amount_box.grid(row=3, column=0, pady=12, padx=10)
 
-        set_amount_button = ctk.CTkButton(master=set_amount_frame, text="START", command=finalize_registration)
-        set_amount_button.grid(row=4, column=0, pady=8)  # Reduced padding
+        set_amount_button = ctk.CTkButton(master=set_amount_frame, text="START", command=set_amount)
+        set_amount_button.grid(row=4, column=0, pady=12, padx=10)
 
 
 
@@ -321,6 +321,11 @@ class HomePage(ctk.CTk):
         self.bind("<Configure>", self.on_resize)
     # this function sets up the settings menu
     def setup_settings_frame(self):
+        def log_out():
+            self.json.log_out()
+            self.main_frame.grid_forget()
+            self.settings_frame.grid_remove()
+            self.log_in()
         self.settings_frame = ctk.CTkFrame(self)
         self.settings_frame.grid_columnconfigure(0, weight=1)
         # this is the dark mode switch
@@ -342,7 +347,8 @@ class HomePage(ctk.CTk):
         self.logout_button = ctk.CTkButton(
             self.settings_frame,
             text="Logout",
-            corner_radius=20
+            corner_radius=20,
+            command=log_out
         )
         self.logout_button.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
         # this is the close settings button
@@ -501,43 +507,11 @@ class HomePage(ctk.CTk):
     
     def history(self):
         amount_window = ctk.CTkToplevel(self)
-        amount_window.title("History Table")
+        amount_window.title("Add/Subtract Amount")
         amount_window.geometry("500x600")
-        
-        # Fetch history and convert it into a DataFrame
-        cursor = self.__db.get_history()  
-        df = self.df_it(cursor) 
-        
-        # Create a scrollable frame
-        frame = ctk.CTkFrame(master=amount_window)
-        frame.pack(fill="both", expand=True, padx=10, pady=10)
-        
-        # Text widget to display DataFrame
-        text_widget = ctk.CTkTextbox(master=frame, width=460, height=500)
-        text_widget.pack(fill="both", expand=True)
-
-        # Insert DataFrame content into the Text widget
-        text_widget.insert("1.0", df.to_string(index=False))  # Format DataFrame to string without index
-        text_widget.configure(state="disabled")  # Disable editing
-
-        # Close button
-        close_button = ctk.CTkButton(master=amount_window, text="Close", command=amount_window.destroy)
-        close_button.pack(pady=10)
-
-    def df_it(self, cursor):
-        a = pd.DataFrame(
-            columns=["time", "amount", "operation", "category", "currency", "transID"]
-        )
-
-        def add(x: list):
-            a.loc[len(a)] = x
-
-        b = [x for x in map(add, map(lambda z: list(z), cursor))]
-        return a
     
     def graphs(self):
-        theme = "dark" if ctk.get_appearance_mode() == "dark" else "light"
-        charts.generate_graphs(self.__db, theme)  # Pass the current theme to the function
+        ...
     
     def open_calc(self):
         ...
