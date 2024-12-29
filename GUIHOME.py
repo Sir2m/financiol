@@ -7,7 +7,7 @@ import db
 from reminders import submit_reminder, setup_database, start_reminder_checker
 import pandas as pd 
 import charts
-import calc_ui
+
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("green")
 
@@ -509,43 +509,11 @@ class HomePage(ctk.CTk):
     
     def history(self):
         amount_window = ctk.CTkToplevel(self)
-        amount_window.title("History Table")
+        amount_window.title("Add/Subtract Amount")
         amount_window.geometry("500x600")
-        
-        # Fetch history and convert it into a DataFrame
-        cursor = self.__db.get_history()  
-        df = self.df_it(cursor) 
-        
-        # Create a scrollable frame
-        frame = ctk.CTkFrame(master=amount_window)
-        frame.pack(fill="both", expand=True, padx=10, pady=10)
-        
-        # Text widget to display DataFrame
-        text_widget = ctk.CTkTextbox(master=frame, width=460, height=500)
-        text_widget.pack(fill="both", expand=True)
-
-        # Insert DataFrame content into the Text widget
-        text_widget.insert("1.0", df.to_string(index=False))  # Format DataFrame to string without index
-        text_widget.configure(state="disabled")  # Disable editing
-
-        # Close button
-        close_button = ctk.CTkButton(master=amount_window, text="Close", command=amount_window.destroy)
-        close_button.pack(pady=10)
-
-    def df_it(self, cursor):
-        a = pd.DataFrame(
-            columns=["time", "amount", "operation", "category", "currency", "transID"]
-        )
-
-        def add(x: list):
-            a.loc[len(a)] = x
-
-        b = [x for x in map(add, map(lambda z: list(z), cursor))]
-        return a
     
     def graphs(self):
-        theme = "dark" if ctk.get_appearance_mode() == "dark" else "light"
-        charts.generate_graphs(self.__db, theme)  # Pass the current theme to the function
+        ...
     
     def open_calc(self):
         calc_ui.open_clac()
