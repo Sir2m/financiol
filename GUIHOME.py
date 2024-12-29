@@ -230,7 +230,7 @@ class HomePage(ctk.CTk):
         set_currency_label = ctk.CTkLabel(master=set_amount_frame, text="Set primary currency", font=("Arial", 16))
         set_currency_label.grid(row=0, column=0, pady=12, padx=10)
 
-        currency_entry = ctk.CTkEntry(master=set_amount_frame, placeholder_text="Primary Currency")
+        currency_entry = ctk.CTkOptionMenu(master=set_amount_frame, values=calc_ui.curr_list)
         currency_entry.grid(row=1, column=0, pady=12, padx=10)
 
         set_amount_label = ctk.CTkLabel(master=set_amount_frame, text="Set Amount", font=("Arial", 16))
