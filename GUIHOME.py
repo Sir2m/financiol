@@ -8,6 +8,7 @@ from reminders import submit_reminder, setup_database, start_reminder_checker
 import pandas as pd 
 import charts
 from calc_operatinos import CalcOperations
+import notifi
 
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("green")
@@ -236,7 +237,7 @@ class HomePage(ctk.CTk):
         set_currency_label = ctk.CTkLabel(master=set_amount_frame, text="Set primary currency", font=("Arial", 16))
         set_currency_label.grid(row=0, column=0, pady=12, padx=10)
 
-        currency_entry = ctk.CTkOptionMenu(master=set_amount_frame, values=calc_ui.curr_list)
+        currency_entry = ctk.CTkOptionMenu(master=set_amount_frame, values=list(db.DB_connection.CURRENCY.keys()))
         currency_entry.grid(row=1, column=0, pady=12, padx=10)
 
         set_amount_label = ctk.CTkLabel(master=set_amount_frame, text="Set Amount", font=("Arial", 16))
@@ -251,7 +252,7 @@ class HomePage(ctk.CTk):
 
 
     def home_page(self):
-
+        notifi.notification("Welcome", "Hello and welcomne to the app", "long")
         # Initialize the database and start the reminder checker
         setup_database()
         start_reminder_checker()
