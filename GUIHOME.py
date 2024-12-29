@@ -331,6 +331,7 @@ class HomePage(ctk.CTk):
     # this function sets up the settings menu
     def setup_settings_frame(self):
         def log_out():
+            del self.__db
             self.json.log_out()
             self.main_frame.grid_forget()
             self.settings_frame.grid_remove()
