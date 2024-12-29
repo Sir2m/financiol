@@ -6,6 +6,8 @@ from db import DB_connection
 currencies = DB_connection.CURRENCY 
 curr_list = list(currencies.keys())
 
+ctk.set_default_color_theme("green")
+
 # Function to handle sale calculation
 def do_sale():
     value = float(sale_value_entry.get())
