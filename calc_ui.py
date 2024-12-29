@@ -203,4 +203,5 @@ currency_button.grid(row=6, column=0, pady=5)
 back_button = ctk.CTkButton(master=currency_frame ,text="Back",command=back_from_curr)
 back_button.grid(row=7, column=0, pady=5)
 
-app.mainloop()
+def open_clac():
+     app.mainloop()

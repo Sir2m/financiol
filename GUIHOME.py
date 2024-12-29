@@ -7,6 +7,7 @@ import db
 from reminders import submit_reminder, setup_database, start_reminder_checker
 import pandas as pd 
 import charts
+import calc_ui
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("green")
 
@@ -547,9 +548,9 @@ class HomePage(ctk.CTk):
         charts.generate_graphs(self.__db, theme)  # Pass the current theme to the function
     
     def open_calc(self):
-        ...
-
+        calc_ui.open_clac()
+        
 # this is the main function that runs the home page
 if __name__ == "__main__":
-    self = HomePage()
-    self.mainloop()
+     self = HomePage()
+     self.mainloop()
