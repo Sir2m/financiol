@@ -82,3 +82,10 @@ class Meta_data:
         self.__theme = "light"
         self.__currency = currency
         self.__name = user_name
+    
+    
+    def log_out(self):
+        self.__id = ""
+        self.__theme = "light"
+        self.__currency = ""
+        self.__name = ""

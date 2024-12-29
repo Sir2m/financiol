@@ -321,6 +321,11 @@ class HomePage(ctk.CTk):
         self.bind("<Configure>", self.on_resize)
     # this function sets up the settings menu
     def setup_settings_frame(self):
+        def log_out():
+            self.json.log_out()
+            self.main_frame.grid_forget()
+            self.settings_frame.grid_remove()
+            self.log_in()
         self.settings_frame = ctk.CTkFrame(self)
         self.settings_frame.grid_columnconfigure(0, weight=1)
         # this is the dark mode switch
@@ -342,7 +347,8 @@ class HomePage(ctk.CTk):
         self.logout_button = ctk.CTkButton(
             self.settings_frame,
             text="Logout",
-            corner_radius=20
+            corner_radius=20,
+            command=log_out
         )
         self.logout_button.grid(row=2, column=0, pady=10, padx=10, sticky="ew")
         # this is the close settings button
