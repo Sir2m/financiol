@@ -30,7 +30,7 @@ def check_data_exists(conn: sqlite3.Connection) -> bool:
     return cursor.fetchone()[0] > 0  # Return True if there are rows, else False
 
 # Function to generate visualization graphs based on financial data
-def generate_graphs(db_connection: DB_connection):
+def generate_graphs(db_connection: DB_connection, theme: str):
     try:
         conn = get_db_connection(db_connection)  # Get the database connection
         
@@ -78,10 +78,12 @@ def generate_graphs(db_connection: DB_connection):
                 
                 if currency_data.empty:  # Skip if there's no data for this currency
                     continue
-                    
-                # Create a figure with two subplots
-                fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
-                fig.suptitle(f'Financial Analysis ({currency})')  # Set the figure title
+                
+                # Apply theme
+                if theme == "dark":
+                    plt.style.use('dark_background')
+                else:
+                    plt.style.use('default')
                 
                 # Pie Chart for spending by category
                 category_data = currency_data[currency_data['operation'] == 'DEPO']
@@ -92,12 +94,13 @@ def generate_graphs(db_connection: DB_connection):
                     if pd.isna(category_totals.index).any():
                         category_totals.index = category_totals.index.fillna('Uncategorized')
                     
+                    fig1, ax1 = plt.subplots(figsize=(8, 6))
                     ax1.pie(category_totals, labels=category_totals.index, autopct='%1.1f%%')
-                    ax1.set_title('Spending by Category')
+                    ax1.set_title(f'Spending by Category ({currency})')
+                    fig1.tight_layout()
+                    fig1.show()
                 else:
-                    # Display a placeholder message if no spending data exists
-                    ax1.text(0.5, 0.5, 'No spending data available',
-                            horizontalalignment='center', verticalalignment='center')
+                    print(f"No spending data available for {currency}")
                 
                 # Line Chart for balance over time
                 currency_data = currency_data.sort_values('time')  # Sort data by time
@@ -118,14 +121,14 @@ def generate_graphs(db_connection: DB_connection):
                         running_balance.append(balance)  # Keep the previous balance
                 
                 currency_data['balance'] = running_balance
+                fig2, ax2 = plt.subplots(figsize=(10, 6))
                 currency_data.plot(x='time', y='balance', ax=ax2, kind='line')  # Plot the balance
-                ax2.set_title('Balance Over Time')
+                ax2.set_title(f'Balance Over Time ({currency})')
                 ax2.set_xlabel('Date')
                 ax2.set_ylabel(f'Balance ({currency})')
                 ax2.grid(True)  # Add a grid to the plot
-                
-                plt.tight_layout()  # Adjust layout to avoid overlapping
-                plt.show()  # Display the plots
+                fig2.tight_layout()
+                fig2.show()
                 
             except Exception as e:  # Handle any errors during processing
                 print(f"Error processing currency {currency}: {e}")
@@ -177,7 +180,7 @@ def main():
     try:
         db = DB_connection()  # Initialize the database connection
         
-        generate_graphs(db)  # Generate visualization graphs
+        generate_graphs(db, "light")  # Generate visualization graphs with light theme
         
         # Generate and display category breakdown
         category_stats = generate_category_breakdown(db)
