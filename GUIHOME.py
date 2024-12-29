@@ -138,6 +138,7 @@ class HomePage(ctk.CTk):
                 
 
                 db.DB_connection.config(f"user{id}db.db")  # PUT WHAT YOU WANT TO LOGIN HERE ///////////////////////////////////////////
+                self.__db = db.DB_connection()
                 login_frame.grid_forget()
                 self.home_page()
             except ValueError as s:
@@ -198,8 +199,8 @@ class HomePage(ctk.CTk):
             self.json.set_new_account(False, id, primary_currency, username)
 
             db.DB_connection.config(f"user{id}db.db")
-            dbc = db.DB_connection()
-            dbc.add_wallet(primary_currency, amount)
+            self.__db = db.DB_connection()
+            self.__db.add_wallet(primary_currency, amount)
             set_amount_frame.grid_forget()
             self.home_page()  # /////////////////////////////////////////////////////////////////////////////////////
 
