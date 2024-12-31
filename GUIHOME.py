@@ -488,7 +488,7 @@ class HomePage(ctk.CTk):
         # Category entry
         category_label = ctk.CTkLabel(amount_window, text="Category:")
         category_label.pack(pady=5)
-        category_entry = ctk.CTkEntry(amount_window)
+        category_entry = ctk.CTkOptionMenu(amount_window,values=["Food","Groceries","Bills","Clothes","Fuel","Other"])
         category_entry.pack(pady=5)
         # Details entry
         details_label = ctk.CTkLabel(amount_window, text="Details:")
